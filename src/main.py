@@ -3,7 +3,7 @@ import sys
 import env
 import asyncio
 import logging
-from backend_sql import querySQL
+#from backend_sql import querySQL
 from aiogram import Bot, Dispatcher,types
 from aiogram.enums import ParseMode
 from aiogram.filters import CommandStart
@@ -65,10 +65,10 @@ async def process_callback_button(callback_query: types.CallbackQuery, state: FS
 async def process_user_message(message: types.Message, state: FSMContext):
     user_response = message.text
 
-    #IDA
+    #Se invoca a la función QuerySQL
     sql_response = await querySQL(user_response)
 
-    #VUELTA
+    #Se envia la respuesta al usuario
     await message.answer(sql_response)
 
     await state.clear()
