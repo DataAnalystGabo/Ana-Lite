@@ -1,55 +1,54 @@
-import pymysql
+import os
+import pymysql.cursors
+from dotenv import load_dotenv
+from aiogram.utils.markdown import hbold
+
+load_dotenv()
+
+def querySQL(input_address):
+
+    connection   = pymysql.connect(
+        host     = os.getenv('MYSQLDB_HOST'),
+        user     = os.getenv('MYSQLDB_USER'),
+        password = os.getenv('MYSQLDB_ROOT_PASSWORD'),
+        database = os.getenv('MYSQLDB_DATABASE'),
+        port     = os.getenv('MYSQLDB_PORT'),
+        cursorclass=pymysql.cursors.DictCursor
+    )
 
 
+    input_address = input_address.upper()
+    cursor = connection.cursor()
 
+    cursor.execute(f"SELECT * FROM Permisos WHERE DIRECCION LIKE '{input_address}' LIMIT 10")
 
+    records = cursor.fetchall()
 
+    if len(records) == 1:
+        response = f"Ey, encontré un permiso para {input_address}. Acá esta la información para la dirección:\n\n"
+    if len(records) > 1:
+        response = f"¡Qué suerte! encontré más de un permiso para la dirección {input_address}. Acá está la información:\n\n"
+    else:
+        response = f"¡Ups! No se encontraron permisos para la dirección {input_address}"
 
-# async def querySQL(user_response):
+    for data in records:
+        response += f"""
+{hbold('ID:  ')} {data['ID']}
+{hbold('CLASE DE AVISO:  ')} {data['CLASE_AVISO']}
+{hbold('EMPRESA:  ')} {data['EMPRESA']}
+{hbold('CONTRATISTA:  ')} {data['CONTRATISTA']}
+{hbold('DIRECCION:  ')} {data['DIRECCION']}
+{hbold('COMUNA:  ')} {data['COMUNA']}
+{hbold('BARRIO:  ')} {data['BARRIO']}
+{hbold('TIPO DE OBRA:  ')} {data['TIPO_OBRA']}
+{hbold('TIPO DE CONTROL:  ')} {data['TIPO_CONTROL']}
+{hbold('ESTADO DE LA INCIDENCIA:  ')} {data['ESTADO_INCIDENCIA']}
+{hbold('OBSERVACIONES:  ')} {data['OBSERVACIONES;']}
 
-#     await sleep(5)
+-----------------------------------------------------
+"""
 
-#     return f'Los resultados para {user_response} son: falta que el programador siga escribiendome'
+    cursor.close()
+    connection.close()
 
-# from dotenv import load_dotenv
-
-# # Load environment variables from the .env file
-# load_dotenv()
-# import os
-# import MySQLdb
-
-# # Connect to the database
-# connection = MySQLdb.connect(
-#   host=os.getenv("DATABASE_HOST"),
-#   user=os.getenv("DATABASE_USERNAME"),
-#   passwd=os.getenv("DATABASE_PASSWORD"),
-#   db=os.getenv("DATABASE"),
-#   autocommit=True,
-#   ssl_mode="VERIFY_IDENTITY",
-#   # See https://planetscale.com/docs/concepts/secure-connections#ca-root-configuration
-#   # to determine the path to your operating systems certificate file.
-#   ssl={ "ca": "" }
-# )
-
-# try:
-#     # Create a cursor to interact with the database
-#     cursor = connection.cursor()
-
-#     # Execute "SHOW TABLES" query
-#     cursor.execute("SHOW TABLES")
-
-#     # Fetch all the rows
-#     tables = cursor.fetchall()
-
-#     # Print out the tables
-#     print("Tables in the database:")
-#     for table in tables:
-#         print(table[0])
-
-# except MySQLdb.Error as e:
-#     print("MySQL Error:", e)
-
-# finally:
-#     # Close the cursor and connection
-#     cursor.close()
-#     connection.close()
+    return response

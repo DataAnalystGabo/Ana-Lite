@@ -1,9 +1,9 @@
 import os
 import sys
-import env
 import asyncio
 import logging
-#from backend_sql import querySQL
+from dotenv import load_dotenv
+from backend_sql import querySQL
 from aiogram import Bot, Dispatcher,types
 from aiogram.enums import ParseMode
 from aiogram.filters import CommandStart
@@ -12,10 +12,11 @@ from aiogram.utils.markdown import hbold
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.context import FSMContext
 
+load_dotenv()
 
-os.environ['TELEGRAM_API_KEY'] = env.TELEGRAM_API_KEY
+
 dp = Dispatcher()
-bot = Bot(env.TELEGRAM_API_KEY , parse_mode=ParseMode.HTML)
+bot = Bot(os.getenv('TELEGRAM_API_KEY'), parse_mode=ParseMode.HTML)
 
 #----------------------------------------------------------------
 #                      Función de incio
@@ -31,7 +32,7 @@ async def main() -> None:
 #----------------------------------------------------------------
 @dp.message(CommandStart())
 async def command_start_handler(message: Message) -> None:
-    await message.answer(f'¡Ey! {hbold(message.from_user.full_name)}, dime que consulta deseas hacer 😊. Abajo te dejo las opciones:', reply_markup=keyboard)
+    await message.answer(f'¡Ey! {hbold(message.from_user.full_name)}, que consulta deseas hacer 😊. Abajo te dejo las opciones:', reply_markup=keyboard)
 #----------------------------------------------------------------
 #----------------------------------------------------------------
 
@@ -40,7 +41,7 @@ async def command_start_handler(message: Message) -> None:
 #                      Definiendo botones
 #----------------------------------------------------------------
 keyboard = InlineKeyboardMarkup(inline_keyboard=[
-    [InlineKeyboardButton(text='Todos los permisos sobre una dirección exacta', callback_data='all_permissions')]
+    [InlineKeyboardButton(text='👉 Todos los permisos sobre una dirección exacta', callback_data='all_permissions')]
 ])
 
 #Declarando estados para capturar respuestas.
@@ -66,7 +67,7 @@ async def process_user_message(message: types.Message, state: FSMContext):
     user_response = message.text
 
     #Se invoca a la función QuerySQL
-    sql_response = await querySQL(user_response)
+    sql_response = querySQL(user_response)
 
     #Se envia la respuesta al usuario
     await message.answer(sql_response)
