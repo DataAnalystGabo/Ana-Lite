@@ -59,7 +59,7 @@ async def process_callback_button(callback_query: types.CallbackQuery, state: FS
 
     await state.set_state(Form.waiting_for_address)
 
-    await bot.send_message(callback_query.from_user.id, f'Dame la dirección que deseas buscar. {hbold('Recuerda que debe ser exacta.')} Ejemplo: AV. RIVADAVIA 3210')
+    await bot.send_message(callback_query.from_user.id, f"Dame la dirección que deseas buscar. {hbold('Recuerda que debe ser exacta.')} Ejemplo: AV. RIVADAVIA 3210")
 
 
 @dp.message(Form.waiting_for_address)

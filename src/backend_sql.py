@@ -2,18 +2,25 @@ import os
 import pymysql.cursors
 from dotenv import load_dotenv
 from aiogram.utils.markdown import hbold
+current_directory = os.path.dirname(os.path.abspath(__file__))
 
 load_dotenv()
 
+
+
 def querySQL(input_address):
 
-    connection   = pymysql.connect(
-        host     = os.getenv('MYSQLDB_HOST'),
-        user     = os.getenv('MYSQLDB_USER'),
-        password = os.getenv('MYSQLDB_ROOT_PASSWORD'),
-        database = os.getenv('MYSQLDB_DATABASE'),
-        port     = os.getenv('MYSQLDB_PORT'),
-        cursorclass=pymysql.cursors.DictCursor
+    connection     = pymysql.connect(
+        host       = os.getenv('DATABASE_HOST'),
+        user       = os.getenv('DATABASE_USERNAME'),
+        password   = os.getenv('DATABASE_PASSWORD'),
+        database   = os.getenv('DATABASE'),
+        port       = 3306,
+        autocommit = True,
+        cursorclass=pymysql.cursors.DictCursor,
+        ssl={
+            'ca': os.path.join(current_directory, '../ssl/cacert.pem')
+        }
     )
 
 
@@ -26,7 +33,7 @@ def querySQL(input_address):
 
     if len(records) == 1:
         response = f"Ey, encontré un permiso para {input_address}. Acá esta la información para la dirección:\n\n"
-    if len(records) > 1:
+    elif len(records) > 1:
         response = f"¡Qué suerte! encontré más de un permiso para la dirección {input_address}. Acá está la información:\n\n"
     else:
         response = f"¡Ups! No se encontraron permisos para la dirección {input_address}"
@@ -43,7 +50,7 @@ def querySQL(input_address):
 {hbold('TIPO DE OBRA:  ')} {data['TIPO_OBRA']}
 {hbold('TIPO DE CONTROL:  ')} {data['TIPO_CONTROL']}
 {hbold('ESTADO DE LA INCIDENCIA:  ')} {data['ESTADO_INCIDENCIA']}
-{hbold('OBSERVACIONES:  ')} {data['OBSERVACIONES;']}
+{hbold('OBSERVACIONES:  ')} {data['OBSERVACIONES']}
 
 -----------------------------------------------------
 """
@@ -52,3 +59,6 @@ def querySQL(input_address):
     connection.close()
 
     return response
+
+# result = querySQL('ESCALADA AV. 4200')
+# print(result)
